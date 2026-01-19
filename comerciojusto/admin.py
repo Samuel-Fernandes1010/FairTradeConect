@@ -2,7 +2,16 @@ from django.contrib import admin
 
 # Register your models here.
 
+<<<<<<< HEAD
 from .models import Produtor, Empresa, Produto, Documento, Administrador, Certificacao, AnuncioMarketplace
+=======
+from .models import Produtor, Empresa, Produto, Documento, Administrador, Certificacao, AnuncioMarketplace, Perfil, Carrinho, Mensagem
+
+@admin.register(Perfil)
+class PerfilAdmin(admin.ModelAdmin):
+    list_display = ('user', 'tipo')
+    search_fields = ('user__username', 'user__email')
+>>>>>>> Samuel
 
 @admin.register(Produtor)
 class ProdutorAdmin(admin.ModelAdmin):
@@ -16,7 +25,11 @@ class EmpresaAdmin(admin.ModelAdmin):
 
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
+<<<<<<< HEAD
     list_display = ('id_produto', 'nome', 'categoria', 'data_producao', 'status_logistica', 'produtor')
+=======
+    list_display = ('id_produto', 'nome', 'categoria', 'preco', 'produtor', 'data_producao', 'status_logistica')
+>>>>>>> Samuel
     list_filter = ('categoria', 'status_logistica')
     search_fields = ('nome', 'descricao')
 
@@ -40,3 +53,17 @@ class AnuncioMarketplaceAdmin(admin.ModelAdmin):
     list_display = ('id_anuncio', 'produto', 'plataforma', 'url', 'data_publicacao', 'status')
     list_filter = ('plataforma', 'status')
     search_fields = ('url',)
+<<<<<<< HEAD
+=======
+
+@admin.register(Carrinho)
+class CarrinhoAdmin(admin.ModelAdmin):
+    list_display = ('id_carrinho', 'usuario', 'sessao_id', 'criado_em', 'atualizado_em')
+    list_filter = ('criado_em',)
+
+@admin.register(Mensagem)
+class MensagemAdmin(admin.ModelAdmin):
+    list_display = ('id_mensagem', 'remetente', 'destinatario', 'assunto', 'lida', 'criada_em')
+    list_filter = ('lida', 'criada_em')
+    search_fields = ('assunto', 'corpo')
+>>>>>>> Samuel

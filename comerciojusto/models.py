@@ -1,14 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
+<<<<<<< HEAD
+=======
+import json
+>>>>>>> Samuel
 
 class Perfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     tipo = models.CharField(max_length=20, choices=[
         ('produtor', 'Produtor'),
         ('empresa', 'Empresa'),
+<<<<<<< HEAD
         ('gestor', 'Gestor'),
         ('operador', 'Operador'),
     ])
+=======
+    ])
+    logo = models.ImageField(upload_to='perfis/logos/', blank=True, null=True)
+    descricao = models.TextField(blank=True, null=True)
+    noticia = models.TextField(blank=True, null=True)
+    contato_adicional = models.CharField(max_length=255, blank=True, null=True)
+>>>>>>> Samuel
 
     def __str__(self):
         return f"{self.user.username} - {self.tipo}"
@@ -42,10 +54,28 @@ class Empresa(models.Model):
         db_table = 'empresa'
 
 class Produto(models.Model):
+<<<<<<< HEAD
     id_produto = models.AutoField(primary_key=True)
     nome = models.CharField(max_length=100)
     descricao = models.TextField(blank=True, null=True)
     categoria = models.CharField(max_length=100, blank=True, null=True)
+=======
+    CATEGORIA_CHOICES = [
+        ('todas', 'Todas Categorias'),
+        ('verduras', 'Verduras, folhas e ervas'),
+        ('legumes', 'Legumes Orgânicos'),
+        ('frutas', 'Frutas Orgânicas'),
+        ('condimentos', 'Condimento & Tempero regional'),
+        ('mercearia', 'Mercearia Orgânica'),
+    ]
+    
+    id_produto = models.AutoField(primary_key=True)
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField(blank=True, null=True)
+    categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES, default='todas')
+    preco = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    imagem = models.ImageField(upload_to='produtos/', blank=True, null=True)
+>>>>>>> Samuel
     data_producao = models.DateField(blank=True, null=True)
     status_logistica = models.CharField(max_length=30, blank=True, null=True)
     produtor = models.ForeignKey(Produtor, on_delete=models.CASCADE)
@@ -111,3 +141,38 @@ class AnuncioMarketplace(models.Model):
         db_table = 'anuncio_marketplace'
 
 
+<<<<<<< HEAD
+=======
+class Carrinho(models.Model):
+    id_carrinho = models.AutoField(primary_key=True)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    sessao_id = models.CharField(max_length=255, blank=True, null=True)
+    itens = models.JSONField(default=dict)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+    rascunho_json = models.JSONField(default=dict, blank=True)
+
+    def __str__(self):
+        return f"Carrinho {self.id_carrinho}"
+
+    class Meta:
+        db_table = 'carrinho'
+
+
+class Mensagem(models.Model):
+    id_mensagem = models.AutoField(primary_key=True)
+    remetente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mensagens_enviadas')
+    destinatario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mensagens_recebidas')
+    assunto = models.CharField(max_length=255)
+    corpo = models.TextField()
+    lida = models.BooleanField(default=False)
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"De: {self.remetente} Para: {self.destinatario}"
+
+    class Meta:
+        db_table = 'mensagem'
+
+
+>>>>>>> Samuel
