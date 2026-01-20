@@ -59,6 +59,13 @@ class Produto(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(blank=True, null=True)
     categoria = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=20, default='PENDENTE, choices=[
+    ('PENDENTE', 'Pendente'),
+    ('APROVADO', 'Aprovado'),
+    ('REPROVADO', 'Reprovado),
+    ]
+    autodeclaracao = models.FileField(upload_to='documentos/', null=True, blank=True)
+    data_auditoria = models.DateTimeField(null=True, blank=True)
 =======
     CATEGORIA_CHOICES = [
         ('todas', 'Todas Categorias'),
