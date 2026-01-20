@@ -20,8 +20,8 @@ import json
 def index(request):
     categoria = request.GET.get('categoria', 'todas')
     pesquisa = request.GET.get('pesquisa', '')
-    
-    produtos = Produto.objects.all()
+    produtos = Produto.objects.filter(status='APROVADO')
+    return render(request, 'comerciojusto/index.html', {'produtos': produtos})produtos = Produto.objects.filter(status='APROVADO')
     
     if categoria != 'todas':
         produtos = produtos.filter(categoria=categoria)
