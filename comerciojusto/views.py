@@ -237,3 +237,33 @@ def visualizar_carrinho(request):
 
 
 >>>>>>> Samuel
+@login_required
+def cadastrar_produto(request):
+    if request.method == 'POST':
+          Produto.objects.create(
+              nome=request.POST.get('nome'),
+              preco=request.POST.get('preco'),
+              imagem=request.FILES.get('imagem'),
+              autodeclaracao=request.FILES.get('autodeclaracao'),
+              produtor=request.user,
+              status='PENDENTE'
+          )
+        return redirect('area_produtor')
+    return render(request, 'comerciojusto/form_produto.html')
+
+#DASHBOARD ADMIN (Auditoria)
+@login_required
+def area_admin(request):
+    if not request.user.is_staff: return redirect('index')
+      pendentes = Produto.objects.filter(status='PENDENTE')
+    return render(request, 'comerciojusto/area_admin.html', {'pendentes': pendentes})
+
+#BOTÃO APROVAR (Regra de Negócio)
+@login_required
+def aprovar_produto(request, id_produto):
+    if request.user.is_staff:
+          produto = get_object_or_404(Produto, id_produto=id_produto)
+          produto.status = 'APROVADO'
+          produto.data_auditoria = timezone.now()
+          produto.save()
+    return redirect('area_admin')
