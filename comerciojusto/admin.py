@@ -25,14 +25,10 @@ class EmpresaAdmin(admin.ModelAdmin):
 
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
-<<<<<<< HEAD
-    list_display = ('id_produto', 'nome', 'categoria', 'data_producao', 'status_logistica', 'produtor')
-=======
-    list_display = ('id_produto', 'nome', 'categoria', 'preco', 'produtor', 'data_producao', 'status_logistica')
->>>>>>> Samuel
-    list_filter = ('categoria', 'status_logistica')
-    search_fields = ('nome', 'descricao')
-
+      list_display = ('nome', 'status', 'produtor', 'data_auditoria')
+      list_filter = ('status', 'categoria')
+      readonly_fields = ('data_auditoria',)
+    
 @admin.register(Documento)
 class DocumentoAdmin(admin.ModelAdmin):
     list_display = ('id_documento', 'tipo', 'status', 'produtor')
