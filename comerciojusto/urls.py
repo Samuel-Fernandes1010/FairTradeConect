@@ -19,4 +19,8 @@ urlpatterns = [
     path('carrinho/adicionar/', views.adicionar_carrinho, name='adicionar_carrinho'),
     path('carrinho/', views.visualizar_carrinho, name='visualizar_carrinho'),
 >>>>>>> Samuel
+
+    path('produto/novo/', views.cadastrar_produto, name='cadastrar_produto'),
+    path('admin-auditoria/', views.area_admin, name='area_admin'),
+    path('aprovar/<int:id_produto>/', views.aprovar_produto, name='aprovar_produto'),
 ]
