@@ -51,6 +51,14 @@
       width: 100%;
       background: linear-gradient(135deg, #7a9d3d 0%, #5a7a2f 100%);
       border: none;
+        <script>
+        function mascaraCPF(campo) {
+            campo.value = campo.value.replace(/\D/g,"")
+                .replace(/(\d{3})(\d)/,"$1.$2")
+                .replace(/(\d{3})(\d)/,"$1.$2")
+                .replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+        }
+        </script>
       padding: 12px;
       border-radius: 8px;
       color: white;
@@ -96,6 +104,11 @@
 <body>
   <div class="cadastro-container">
     <div class="cadastro-header">
+      
+            <div class="mb-3">
+              <label for="cpf" class="form-label">CPF</label>
+              <input type="text" name="cpf" id="cpf" maxlength="14" oninput="mascaraCPF(this)" placeholder="CPF" required>
+            </div>
       <a href="{% url 'index' %}" style="text-decoration: none; color: #7a9d3d;">
         <h2 style="cursor: pointer;">🌾 Crie sua Conta</h2>
       </a>
