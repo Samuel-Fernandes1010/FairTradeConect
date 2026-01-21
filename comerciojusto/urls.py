@@ -2,16 +2,15 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('login/', views.login_view, name='login'),
-    path('cadastro/', views.cadastro_view, name='cadastro'),
-    path('logout/', views.logout_view, name='logout'),
-    path('pos-login/', views.pos_login, name='pos_login'),
-    path('area/produtor/', views.area_produtor, name='area_produtor'),
-    path('area/empresa/', views.area_empresa, name='area_empresa'),
-    path('produto/<int:id_produto>/', views.detalhes_produto, name='detalhes_produto'),
-    path('meu-perfil/', views.meu_perfil, name='meu_perfil'),
-    path('caixa-entrada/', views.caixa_entrada, name='caixa_entrada'),
-    path('carrinho/adicionar/', views.adicionar_carrinho, name='adicionar_carrinho'),
-    path('carrinho/', views.visualizar_carrinho, name='visualizar_carrinho'),
+    path('', views.index, name='index'), # Pagina inicial
+    path('login/', views.login_view, name='login'), # Login
+    path('cadastro/', views.cadastro_view, name='cadastro'), # Cadastro
+    path('logout/', views.logout_view, name='logout'), # Logout
+    path('pos-login/', views.pos_login, name='pos_login'), # Redireciona a pagina após o login para uma pagina especifica
+    path('produto/<int:id_produto>/', views.detalhes_produto, name='detalhes_produto'), # Pagina do Produto
+        path('dashboard/', views.dashboard_perfil, name='dashboard_perfil'), # Página unificada de perfil/feed
+    path('caixa-entrada/', views.caixa_entrada, name='caixa_entrada'), # Caixa de entrada para conversa
+    path('carrinho/adicionar/', views.adicionar_carrinho, name='adicionar_carrinho'), # adicionar ao carrinho
+    path('carrinho/', views.visualizar_carrinho, name='visualizar_carrinho'), # visualizar o carrinho
+    path('admin/certificacoes/', views.gerenciar_certificacoes, name='gerenciar_certificacoes'), # admin: gerenciar certificações
 ]

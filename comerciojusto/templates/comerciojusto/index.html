@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/static/js/custom.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fair Trade Connect - Comércio Justo</title>
@@ -342,7 +344,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'meu_perfil' %}">
+              <a class="nav-link" href="{% url 'dashboard_perfil' %}">
                 <i class="fas fa-user"></i> Meu Perfil
               </a>
             </li>
@@ -410,6 +412,14 @@
                   <div class="product-footer">
                     <span class="price">R$ {{ produto.preco }}</span>
                     <form method="POST" action="{% url 'adicionar_carrinho' %}" onclick="event.stopPropagation();" style="display: inline;">
+                        <div id="modal-carrinho" class="modal" tabindex="-1" style="display:none; background:rgba(0,0,0,0.5); position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9999;">
+                          <div style="background:#fff; max-width:400px; margin:10% auto; padding:30px; border-radius:10px; text-align:center;">
+                            <h5>Produto adicionado ao carrinho!</h5>
+                            <p>Deseja continuar comprando ou ir para o carrinho?</p>
+                            <button id="continuar-comprando" type="button" class="btn btn-success" style="margin:10px;">Continuar comprando</button>
+                            <a href="{% url 'visualizar_carrinho' %}" class="btn btn-primary" style="margin:10px;">Ir para o carrinho</a>
+                          </div>
+                        </div>
                       {% csrf_token %}
                       <input type="hidden" name="produto_id" value="{{ produto.id_produto }}">
                       <input type="hidden" name="quantidade" value="1">

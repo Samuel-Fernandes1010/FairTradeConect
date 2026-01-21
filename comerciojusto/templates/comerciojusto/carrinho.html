@@ -219,21 +219,25 @@
                   📦
                 {% endif %}
               </div>
-              
               <div class="item-info">
                 <div class="item-name">{{ item.produto.nome }}</div>
                 <div class="item-price">R$ {{ item.produto.preco }}</div>
               </div>
-              
               <div class="item-quantity">
                 <div style="font-weight: 600;">Quantidade</div>
                 <div style="font-size: 20px;">{{ item.quantidade }}</div>
               </div>
-              
               <div class="item-subtotal">
                 <div style="font-weight: 600;">Subtotal</div>
                 <div class="subtotal-price">R$ {{ item.subtotal|floatformat:2 }}</div>
               </div>
+              <form method="POST" style="margin-left: 30px;">
+                {% csrf_token %}
+                <input type="hidden" name="remover_produto_id" value="{{ item.produto.id_produto }}">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remover este item do carrinho?');">
+                  <i class="fas fa-trash"></i> Remover
+                </button>
+              </form>
             </div>
           {% endfor %}
         </div>

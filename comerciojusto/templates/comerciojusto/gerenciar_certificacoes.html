@@ -1,0 +1,49 @@
+{% extends 'comerciojusto/base.html' %}
+{% block title %}Gerenciar Certificações{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Certificações para Análise</h2>
+  {% if msg %}<div class="alert alert-success">{{ msg }}</div>{% endif %}
+  <table class="table table-bordered mt-4">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Perfil</th>
+        <th>Arquivo</th>
+        <th>Validade</th>
+        <th>Status</th>
+        <th>Parecer</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cert in certificacoes %}
+      <tr>
+        <td>{{ cert.id_certificacao }}</td>
+        <td>{{ cert.perfil }}</td>
+        <td>{% if cert.arquivo_certificado %}<a href="{{ cert.arquivo_certificado.url }}" target="_blank">Ver Arquivo</a>{% endif %}</td>
+        <td>{% if cert.validade %}{{ cert.validade|date:'d/m/Y' }}{% endif %}</td>
+        <td>{{ cert.get_status_display }}</td>
+        <td>{% if cert.parecer %}{{ cert.parecer }}{% endif %}</td>
+        <td>
+          <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="cert_id" value="{{ cert.id_certificacao }}">
+            <input type="hidden" name="acao" value="aprovar">
+            <input type="text" name="parecer" placeholder="Parecer (opcional)" class="form-control mb-1">
+            <button type="submit" class="btn btn-success btn-sm">Aprovar</button>
+          </form>
+          <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="cert_id" value="{{ cert.id_certificacao }}">
+            <input type="hidden" name="acao" value="reprovar">
+            <input type="text" name="parecer" placeholder="Parecer (opcional)" class="form-control mb-1">
+            <button type="submit" class="btn btn-danger btn-sm">Reprovar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
