@@ -11,9 +11,16 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
+
+#STRIPE
+STRIPE_SECURITY_KEY = os.environ.get('STRIPE_SECURIY_KEY')
+STRIPE_PUBLISHABLE_KEY = os.environ.get('SRIPE_PUBLISHARE_KEY')
 
 
 # Quick-start development settings - unsuitable for production
@@ -49,8 +56,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'payments.apps.PaymentsConfig',
+    
+    # Apps de autenticação social
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'comerciojusto.apps.ComerciojustoConfig',
 ]
+
+# ID do site  (allauth)
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -60,6 +78,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # allauth
 ]
 
 ROOT_URLCONF = 'webapp.urls'
@@ -67,7 +86,7 @@ ROOT_URLCONF = 'webapp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -135,3 +154,52 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ===== CONFIGURAÇÕES DO DJANGO-ALLAUTH =====
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Login tradicional
+    'allauth.account.auth_backends.AuthenticationBackend',  # Login social
+]
+
+# Adapter customizado removido para simplificar o fluxo
+# SOCIALACCOUNT_ADAPTER = 'comerciojusto.adapters.CustomSocialAccountAdapter'
+
+# Configurações de login e redirect
+LOGIN_REDIRECT_URL = '/pos-login/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+SOCIALACCOUNT_LOGIN_ON_GET = True  # Permitir login social via GET
+
+# Configurações do allauth
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}  # Permite login com username ou email
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']  # Campos obrigatórios no signup
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # 'mandatory', 'optional' ou 'none'
+ACCOUNT_EMAIL_REQUIRED = True  # Email obrigatório
+ACCOUNT_UNIQUE_EMAIL = True  # Email único no sistema
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Criar conta automaticamente no primeiro login social
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True  # Conectar contas com mesmo email
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True  # Conectar automaticamente contas com mesmo email
+
+# Configurações específicas do Google (via .env)
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET'),
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+    }
+}
+
+# Configuração do Stripe
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+
+# Para permitir requisições do Stripe em produção
+CSRF_TRUSTED_ORIGINS = ['https://checkout.stripe.com']

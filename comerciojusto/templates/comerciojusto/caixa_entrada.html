@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Caixa de Entrada - Fair Trade Connect</title>
+  <title>Caixa de Entrada - Amazônia Marketing & Consultoria</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -177,7 +177,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="{% url 'index' %}">
-        🌾 Fair Trade Connect
+        🌿 Amazônia Marketing & Consultoria
       </a>
       <a href="{% url 'dashboard_perfil' %}" style="color: white; margin-right: 20px; text-decoration: none;">
         Meu Perfil
@@ -191,56 +191,84 @@
     <!-- Inbox Header -->
     <div class="inbox-header">
       <div class="inbox-title">
-        <i class="fas fa-inbox"></i> Caixa de Entrada
-        {% if nao_lidas > 0 %}
-          <span class="badge-unread">{{ nao_lidas }} não lida</span>
+        <i class="fas fa-inbox"></i> Conversas
+        {% if total_nao_lidas > 0 %}
+          <span class="badge-unread">{{ total_nao_lidas }} não lida{{ total_nao_lidas|pluralize }}</span>
         {% endif %}
       </div>
       <div class="inbox-info">
-        Você tem {{ mensagens.count }} mensagem{{ mensagens.count|pluralize }}
+        Você tem {{ conversas|length }} conversa{{ conversas|length|pluralize }}
       </div>
     </div>
 
+    <!-- Actions Bar -->
+    {% if conversas %}
+    <form method="POST" id="formAcoes">
+      {% csrf_token %}
+      <div class="actions-bar" style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);">
+        <button type="button" id="selectAll" class="btn btn-sm btn-outline-secondary">
+          <i class="fas fa-check-square"></i> Selecionar Tudo
+        </button>
+        <button type="submit" name="acao" value="excluir" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir as conversas selecionadas?')">
+          <i class="fas fa-trash"></i> Excluir
+        </button>
+        <button type="submit" name="acao" value="marcar_nao_lida" class="btn btn-sm btn-warning">
+          <i class="fas fa-envelope"></i> Marcar como Não Lida
+        </button>
+      </div>
+
     <!-- Messages List -->
-    {% if mensagens %}
       <div class="message-list">
-        {% for mensagem in mensagens %}
-          <div class="message-item {% if not mensagem.lida %}unread{% endif %}">
-            {% if not mensagem.lida %}
+        {% for conversa in conversas %}
+          <div class="message-item {% if conversa.nao_lidas > 0 %}unread{% endif %}" style="position: relative;">
+            <input type="checkbox" name="mensagens_selecionadas" value="{{ conversa.ultima_mensagem.id_mensagem }}" class="message-checkbox" style="width: 20px; height: 20px; cursor: pointer;">
+            
+            {% if conversa.nao_lidas > 0 %}
               <div class="message-unread-indicator"></div>
             {% else %}
               <div style="width: 8px; height: 8px;"></div>
             {% endif %}
             
             <div class="message-avatar">
-              {{ mensagem.remetente.first_name|first|upper }}
+              {{ conversa.usuario.first_name|first|upper }}
             </div>
             
-            <div class="message-content">
-              <div class="message-sender">
-                {{ mensagem.remetente.first_name }} {{ mensagem.remetente.last_name }}
+            <a href="{% url 'visualizar_conversa' conversa.usuario.id %}" style="text-decoration: none; color: inherit; flex: 1; display: flex; gap: 20px; align-items: center;">
+              <div class="message-content">
+                <div class="message-sender">
+                  {{ conversa.usuario.first_name }} {{ conversa.usuario.last_name }}
+                  {% if conversa.nao_lidas > 0 %}
+                    <span style="background: #ff4444; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 10px;">
+                      {{ conversa.nao_lidas }} nova{{ conversa.nao_lidas|pluralize }}
+                    </span>
+                  {% endif %}
+                </div>
+                <div class="message-subject">
+                  {{ conversa.ultima_mensagem.assunto }}
+                </div>
+                <div class="message-preview">
+                  {% if conversa.ultima_mensagem.remetente == user %}
+                    <i class="fas fa-reply" style="margin-right: 5px; color: var(--primary);"></i> Você: 
+                  {% endif %}
+                  {{ conversa.ultima_mensagem.corpo|truncatewords:15 }}
+                </div>
               </div>
-              <div class="message-subject">
-                {{ mensagem.assunto }}
+              
+              <div class="message-time">
+                <div>{{ conversa.ultima_mensagem.criada_em|date:"d/m/Y" }}</div>
+                <div style="font-size: 12px;">{{ conversa.ultima_mensagem.criada_em|time:"H:i" }}</div>
               </div>
-              <div class="message-preview">
-                {{ mensagem.corpo|truncatewords:20 }}
-              </div>
-            </div>
-            
-            <div class="message-time">
-              <div>{{ mensagem.criada_em|date:"d/m/Y" }}</div>
-              <div style="font-size: 12px;">{{ mensagem.criada_em|time:"H:i" }}</div>
-            </div>
+            </a>
           </div>
         {% endfor %}
       </div>
+    </form>
     {% else %}
       <div class="message-list">
         <div class="empty-inbox">
           <i class="fas fa-inbox"></i>
-          <h3>Sua caixa de entrada está vazia</h3>
-          <p>Quando você receber mensagens de produtores ou empresas, elas aparecerão aqui.</p>
+          <h3>Nenhuma conversa ainda</h3>
+          <p>Quando você enviar ou receber mensagens, as conversas aparecerão aqui.</p>
           <a href="{% url 'index' %}" class="btn btn-primary" style="margin-top: 20px;">
             ← Voltar para Produtos
           </a>
@@ -250,5 +278,14 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Selecionar/Desselecionar todas as checkboxes
+    document.getElementById('selectAll')?.addEventListener('click', function() {
+      const checkboxes = document.querySelectorAll('.message-checkbox');
+      const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+      checkboxes.forEach(cb => cb.checked = !allChecked);
+      this.innerHTML = allChecked ? '<i class="fas fa-check-square"></i> Selecionar Tudo' : '<i class="fas fa-square"></i> Desselecionar Tudo';
+    });
+  </script>
 </body>
 </html>

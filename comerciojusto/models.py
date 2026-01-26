@@ -24,6 +24,8 @@ class Pedido(models.Model):
     class Meta:
         db_table = 'pedido'
         ordering = ['-data_pedido']
+        verbose_name = 'Pedido'
+        verbose_name_plural = 'Pedidos'
 
 # Itens do pedido (produto + quantidade)
 class ItemPedido(models.Model):
@@ -36,24 +38,8 @@ class ItemPedido(models.Model):
 
     class Meta:
         db_table = 'item_pedido'
-
-from django.db import models
-from django.contrib.auth.models import User
-import json
-
-# Publicação/feed do perfil
-class Publicacao(models.Model):
-    perfil = models.ForeignKey('Perfil', on_delete=models.CASCADE, related_name='publicacoes')
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    conteudo = models.TextField()
-    data_publicacao = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.usuario.username}: {self.conteudo[:30]}..."
-
-    class Meta:
-        db_table = 'publicacao'
-        ordering = ['-data_publicacao']
+        verbose_name = 'Item do Pedido'
+        verbose_name_plural = 'Itens dos Pedidos'
 
 # Perfil/pagina do produtor e vendedor:  utilizada para mostrar produtos, marca, contatos e outras informações pertinentes da empresa
 # ligada a cada usuario
@@ -64,7 +50,7 @@ class Perfil(models.Model):
         ('empresa', 'Empresa'),
     ])
     logo = models.ImageField(upload_to='perfis/logos/', blank=True, null=True)
-    capa = models.ImageField(upload_to='perfis/capas/', blank=True, null=True)
+    bio = models.TextField(blank=True, null=True, verbose_name='Biografia')
     descricao = models.TextField(blank=True, null=True)
     noticia = models.TextField(blank=True, null=True)
     contato_adicional = models.CharField(max_length=255, blank=True, null=True)
@@ -84,6 +70,8 @@ class Perfil(models.Model):
 
     class Meta:
         db_table = 'perfil'
+        verbose_name = 'Perfil'
+        verbose_name_plural = 'Perfis'
 
 # Produtor
 class Produtor(models.Model):
@@ -100,6 +88,8 @@ class Produtor(models.Model):
 
     class Meta:
         db_table = 'produtor'
+        verbose_name = 'Produtor'
+        verbose_name_plural = 'Produtores'
         
 # Empresa
 class Empresa(models.Model):
@@ -116,6 +106,8 @@ class Empresa(models.Model):
 
     class Meta:
         db_table = 'empresa'
+        verbose_name = 'Empresa'
+        verbose_name_plural = 'Empresas'
 
 #Produto - aqui estou pensando em colocar outros tipos como adubo, antipragas e materiais relacionados a produção desses produtos
 # Adicionar opção de upload de imagem que falta no site
@@ -138,7 +130,7 @@ class Produto(models.Model):
     imagem = models.ImageField(upload_to='produtos/', blank=True, null=True)
     data_producao = models.DateField(blank=True, null=True)
     status_logistica = models.CharField(max_length=30, blank=True, null=True)
-    produtor = models.ForeignKey(Produtor, on_delete=models.CASCADE)
+    produtor = models.ForeignKey(Produtor, on_delete=models.CASCADE, null=True, blank=True)
     perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, null=True, blank=True, related_name='produtos')
     estoque = models.IntegerField(default=0)
     vendas = models.IntegerField(default=0)
@@ -152,6 +144,8 @@ class Produto(models.Model):
     class Meta:
         db_table = 'produto'
         ordering = ['-destaque', '-vendas']
+        verbose_name = 'Produto'
+        verbose_name_plural = 'Produtos'
 
 # o que seria Documento?
 class Documento(models.Model):
@@ -166,6 +160,8 @@ class Documento(models.Model):
 
     class Meta:
         db_table = 'documento'
+        verbose_name = 'Documento'
+        verbose_name_plural = 'Documentos'
 
 class Administrador(models.Model):
     id_adm = models.AutoField(primary_key=True)
@@ -178,6 +174,8 @@ class Administrador(models.Model):
 
     class Meta:
         db_table = 'administrador'
+        verbose_name = 'Administrador'
+        verbose_name_plural = 'Administradores'
 
 # Ajustar painel apropriado para o responsável que irá distribuir essas certificações
 class Certificacao(models.Model):
@@ -190,7 +188,7 @@ class Certificacao(models.Model):
     
     id_certificacao = models.AutoField(primary_key=True)
     perfil = models.ForeignKey('Perfil', on_delete=models.CASCADE, related_name='certificacoes', null=True, blank=True)  # Produtor ou Empresa
-    produto = models.ForeignKey(Produto, on_delete=models.SET_NULL, blank=True, null=True)  # Opcional
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name='certificacoes', null=True, blank=True)  # Será obrigatório via form validation
     administrador = models.ForeignKey(Administrador, on_delete=models.SET_NULL, blank=True, null=True)  # Só após análise
     data_certificacao = models.DateField(blank=True, null=True)
     validade = models.DateField(blank=True, null=True)
@@ -219,7 +217,10 @@ class Certificacao(models.Model):
 
     class Meta:
         db_table = 'certificacao'
+        verbose_name = 'Certificação'
+        verbose_name_plural = 'Certificações'
 
+    # Prototipo bom, mas falta otimizar
 class Avaliacao(models.Model):
     id_avaliacao = models.AutoField(primary_key=True)
     perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='avaliacoes')
@@ -235,7 +236,10 @@ class Avaliacao(models.Model):
     class Meta:
         db_table = 'avaliacao'
         ordering = ['-data_avaliacao']
+        verbose_name = 'Avaliação'
+        verbose_name_plural = 'Avaliações'
 
+# melhorar essa implementação (seria para divulgar o produto fora do site?)
 class AnuncioMarketplace(models.Model):
     id_anuncio = models.AutoField(primary_key=True)
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
@@ -249,6 +253,8 @@ class AnuncioMarketplace(models.Model):
 
     class Meta:
         db_table = 'anuncio_marketplace'
+        verbose_name = 'Anúncio Marketplace'
+        verbose_name_plural = 'Anúncios Marketplace'
 
 class Carrinho(models.Model):
     id_carrinho = models.AutoField(primary_key=True)
@@ -264,6 +270,8 @@ class Carrinho(models.Model):
 
     class Meta:
         db_table = 'carrinho'
+        verbose_name = 'Carrinho'
+        verbose_name_plural = 'Carrinhos'
 
 class Mensagem(models.Model):
     id_mensagem = models.AutoField(primary_key=True)
@@ -279,3 +287,5 @@ class Mensagem(models.Model):
 
     class Meta:
         db_table = 'mensagem'
+        verbose_name = 'Mensagem'
+        verbose_name_plural = 'Mensagens'

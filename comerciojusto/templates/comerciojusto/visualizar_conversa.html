@@ -1,0 +1,231 @@
+{% extends 'comerciojusto/base.html' %}
+{% load static %}
+
+{% block title %}Conversa - Fair Trade Connect{% endblock %}
+
+{% block extra_head %}
+<style>
+  :root {
+    --primary: #7a9d3d;
+    --secondary: #5a7a2f;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9fa;
+  }
+  
+  .conversa-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  
+  .conversa-header {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .conversa-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .conversa-info h2 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+  }
+  
+  .conversa-info p {
+    margin: 5px 0 0;
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .mensagens-historico {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  
+  .mensagem-item {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mensagem-enviada {
+    align-items: flex-end;
+  }
+  
+  .mensagem-recebida {
+    align-items: flex-start;
+  }
+  
+  .mensagem-bubble {
+    max-width: 70%;
+    padding: 15px 20px;
+    border-radius: 18px;
+    position: relative;
+  }
+  
+  .mensagem-enviada .mensagem-bubble {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  
+  .mensagem-recebida .mensagem-bubble {
+    background: #e9ecef;
+    color: #333;
+    border-bottom-left-radius: 4px;
+  }
+  
+  .mensagem-texto {
+    margin: 0;
+    line-height: 1.5;
+  }
+  
+  .mensagem-meta {
+    font-size: 11px;
+    margin-top: 8px;
+    opacity: 0.8;
+  }
+  
+  .nova-mensagem-form {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nova-mensagem-form textarea {
+    width: 100%;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .nova-mensagem-form textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+  }
+  
+  .btn-enviar {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s;
+    margin-top: 15px;
+  }
+  
+  .btn-enviar:hover {
+    transform: translateY(-2px);
+  }
+  
+  .btn-voltar {
+    display: inline-block;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 20px;
+    transition: opacity 0.3s;
+  }
+  
+  .btn-voltar:hover {
+    opacity: 0.7;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="conversa-container">
+  <a href="{% url 'caixa_entrada' %}" class="btn-voltar">
+    <i class="fas fa-arrow-left"></i> Voltar para Conversas
+  </a>
+  
+  <!-- Header da Conversa -->
+  <div class="conversa-header">
+    <div class="conversa-avatar">
+      {{ outro_usuario.first_name|first|upper }}
+    </div>
+    <div class="conversa-info">
+      <h2>{{ outro_usuario.first_name }} {{ outro_usuario.last_name }}</h2>
+      <p><i class="fas fa-envelope"></i> {{ outro_usuario.email }}</p>
+    </div>
+  </div>
+  
+  <!-- Histórico de Mensagens -->
+  <div class="mensagens-historico" id="historicoMensagens">
+    {% if mensagens %}
+      {% for mensagem in mensagens %}
+        <div class="mensagem-item {% if mensagem.remetente == user %}mensagem-enviada{% else %}mensagem-recebida{% endif %}">
+          <div class="mensagem-bubble">
+            {% if mensagem.assunto and mensagem.assunto != 'Re: Conversa' %}
+              <strong style="display: block; margin-bottom: 8px;">{{ mensagem.assunto }}</strong>
+            {% endif %}
+            <p class="mensagem-texto">{{ mensagem.corpo }}</p>
+            <div class="mensagem-meta">
+              {{ mensagem.criada_em|date:"d/m/Y H:i" }}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align: center; color: #999; padding: 40px;">
+        <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 15px;"></i>
+        <p>Nenhuma mensagem ainda. Envie a primeira mensagem!</p>
+      </div>
+    {% endif %}
+  </div>
+  
+  <!-- Formulário de Nova Mensagem -->
+  <div class="nova-mensagem-form">
+    <h4 style="margin-bottom: 15px; color: #333;">
+      <i class="fas fa-paper-plane"></i> Nova Mensagem
+    </h4>
+    <form method="POST">
+      {% csrf_token %}
+      <textarea name="corpo" placeholder="Digite sua mensagem..." required></textarea>
+      <button type="submit" class="btn-enviar">
+        <i class="fas fa-paper-plane"></i> Enviar Mensagem
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Scroll automático para o final das mensagens
+  const historico = document.getElementById('historicoMensagens');
+  if (historico) {
+    historico.scrollTop = historico.scrollHeight;
+  }
+</script>
+{% endblock %}

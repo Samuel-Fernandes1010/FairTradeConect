@@ -1,7 +1,7 @@
 {% extends 'comerciojusto/base.html' %}
 {% load static %}
 
-{% block title %}Perfil & Feed - Fair Trade Connect{% endblock %}
+{% block title %}Perfil & Feed - Amazônia Marketing & Consultoria{% endblock %}
 
 {% block extra_head %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -214,58 +214,23 @@
     </div>
     <div class="profile-email">{{ user.email }}</div>
     <div style="margin-top:10px; color:#666;">{{ perfil.descricao }}</div>
+    
+    <!-- Botões de Navegação Fixos -->
+    <div style="margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+      <a href="{% url 'meu_perfil' %}" class="btn btn-primary" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); border: none; padding: 12px 25px; font-weight: 600; border-radius: 8px; text-decoration: none; color: white; display: inline-block; transition: transform 0.3s;">
+        <i class="fas fa-user-edit"></i> Editar Perfil
+      </a>
+      <a href="{% url 'caixa_entrada' %}" class="btn btn-primary" style="background: linear-gradient(135deg, #4a90e2 0%, #357ab7 100%); border: none; padding: 12px 25px; font-weight: 600; border-radius: 8px; text-decoration: none; color: white; display: inline-block; transition: transform 0.3s;">
+        <i class="fas fa-envelope"></i> Caixa de Entrada
+      </a>
+      <a href="{% url 'visualizar_carrinho' %}" class="btn btn-primary" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); border: none; padding: 12px 25px; font-weight: 600; border-radius: 8px; text-decoration: none; color: white; display: inline-block; transition: transform 0.3s;">
+        <i class="fas fa-shopping-cart"></i> Carrinho
+      </a>
+    </div>
   </div>
 
-            <!-- Feed de Notícias/Publicações -->
-            <div class="section">
-              <h3>📰 Feed de Notícias e Atualizações</h3>
-              <form method="POST" style="margin-bottom:20px;">
-                {% csrf_token %}
-                <div class="form-group">
-                  <textarea id="noticia" name="noticia" placeholder="Compartilhe novidades, promoções ou atualizações..." class="form-control"></textarea>
-                </div>
-                <button type="submit" class="btn btn-success">Publicar</button>
-              </form>
-              <div>
-                {% if publicacoes and publicacoes.count > 0 %}
-                  {% for pub in publicacoes %}
-                    <div class="card mb-2">
-                      <div class="card-body">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                          <div style="font-weight:600;">{{ pub.usuario.first_name }} {{ pub.usuario.last_name }}</div>
-                          {% if user == pub.usuario %}
-                          <div style="display:flex; gap:5px;">
-                            <form method="POST" style="display:inline; margin:0;">
-                              {% csrf_token %}
-                              <input type="hidden" name="excluir_publicacao_id" value="{{ pub.id }}">
-                              <button type="submit" class="btn btn-sm btn-danger" title="Excluir publicação" onclick="return confirm('Deseja excluir esta publicação?');">Excluir</button>
-                            </form>
-                            <button class="btn btn-sm btn-warning" type="button" onclick="document.getElementById('edit-pub-{{ pub.id }}').style.display='block';this.style.display='none';">Editar</button>
-                          </div>
-                          {% endif %}
-                        </div>
-                        {% if user == pub.usuario %}
-                          <form method="POST" id="edit-pub-{{ pub.id }}" style="display:none; margin-top:10px;">
-                            {% csrf_token %}
-                            <input type="hidden" name="editar_publicacao_id" value="{{ pub.id }}">
-                            <textarea name="editar_conteudo" class="form-control mb-2">{{ pub.conteudo }}</textarea>
-                            <button type="submit" class="btn btn-success btn-sm">Salvar</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.style.display='none';">Cancelar</button>
-                          </form>
-                        {% endif %}
-                        <div style="color:#555; margin-top:5px;">{{ pub.conteudo }}</div>
-                        <div style="font-size:12px; color:#aaa;">Publicado em {{ pub.data_publicacao|date:'d/m/Y H:i' }}</div>
-                      </div>
-                    </div>
-                  {% endfor %}
-                {% else %}
-                  <div class="empty-state">Nenhuma publicação ainda.</div>
-                {% endif %}
-              </div>
-            </div>
-
-            <!-- Área de Produtos (para produtor) -->
-            {% if perfil.tipo == 'produtor' %}
+            <!-- Área de Produtos (para produtor e empresa) -->
+            {% if perfil.tipo == 'produtor' or perfil.tipo == 'empresa' %}
             <div class="section">
               <h3>➕ Adicionar Produto</h3>
               {% if erro_produto %}
@@ -300,56 +265,130 @@
                 <button type="submit" class="btn btn-primary">Adicionar Produto</button>
               </form>
             </div>
+
+            <!-- Lista de Produtos Cadastrados -->
+            <div class="section">
+              <h3>📦 Meus Produtos Cadastrados</h3>
+              <div class="row">
+                {% if produtos and produtos.count > 0 %}
+                  {% for produto in produtos %}
+                  <div class="col-md-4 mb-4">
+                    <div class="product-card">
+                      <div class="product-image">
+                        {% if produto.imagem %}
+                          <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}">
+                        {% else %}
+                          <i class="fas fa-box-open" style="color: var(--primary);"></i>
+                        {% endif %}
+                      </div>
+                      <div class="product-body">
+                        <h5 class="product-name">{{ produto.nome }}</h5>
+                        <p class="product-price">R$ {{ produto.preco }}</p>
+                        <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                          {{ produto.descricao|truncatewords:15 }}
+                        </p>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                          <a href="{% url 'detalhes_produto' produto.id_produto %}" class="btn btn-sm btn-outline-primary" style="flex: 1;">
+                            <i class="fas fa-eye"></i> Ver
+                          </a>
+                          <form method="POST" style="flex: 1; margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="excluir_produto_id" value="{{ produto.id_produto }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" style="width: 100%;" onclick="return confirm('Tem certeza que deseja excluir este produto?')">
+                              <i class="fas fa-trash"></i> Excluir
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="col-12">
+                    <div class="empty-state">
+                      <i class="fas fa-box-open"></i>
+                      <p>Nenhum produto cadastrado ainda. Use o formulário acima para adicionar seus produtos!</p>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
             {% endif %}
 
-            <!-- Lista de Pedidos (para empresa) -->
-            {% if perfil.tipo == 'empresa' %}
+            <!-- Lista de Pedidos (para produtor e empresa) -->
+            {% if perfil.tipo == 'empresa' or perfil.tipo == 'produtor' %}
             <div class="section">
               <h3>🛒 Pedidos Recebidos</h3>
+              <p class="text-muted">Pedidos de produtos cadastrados por você</p>
               <div class="table-responsive">
                 {% if pedidos and pedidos.count > 0 %}
-                  <table class="table table-bordered">
-                    <thead>
+                  <table class="table table-bordered table-hover">
+                    <thead class="table-light">
                       <tr>
                         <th>ID</th>
                         <th>Cliente</th>
                         <th>Produtos</th>
+                        <th>Quantidades</th>
+                        <th>Valor Total</th>
                         <th>Status</th>
                         <th>Data</th>
                       </tr>
                     </thead>
                     <tbody>
                       {% for pedido in pedidos %}
+                        {% with total=0 %}
                         <tr>
-                          <td>{{ pedido.id_pedido }}</td>
-                          <td>{{ pedido.usuario.get_full_name|default:pedido.usuario.username }}</td>
+                          <td><strong>#{{ pedido.id_pedido }}</strong></td>
                           <td>
-                            <ul style="padding-left:18px; margin:0;">
+                            <i class="fas fa-user"></i> 
+                            {{ pedido.usuario.get_full_name|default:pedido.usuario.username }}
+                            <br><small class="text-muted">{{ pedido.usuario.email }}</small>
+                          </td>
+                          <td>
+                            <ul style="padding-left:18px; margin:0; list-style:none;">
                               {% for item in pedido.itempedido_set.all %}
-                                <li>{{ item.produto.nome }} (x{{ item.quantidade }})</li>
+                                <li><i class="fas fa-box"></i> {{ item.produto.nome }}</li>
+                              {% endfor %}
+                            </ul>
+                          </td>
+                          <td>
+                            <ul style="padding-left:18px; margin:0; list-style:none;">
+                              {% for item in pedido.itempedido_set.all %}
+                                <li>x{{ item.quantidade }} un</li>
+                              {% endfor %}
+                            </ul>
+                          </td>
+                          <td>
+                            <ul style="padding-left:18px; margin:0; list-style:none;">
+                              {% for item in pedido.itempedido_set.all %}
+                                <li>R$ {{ item.produto.preco }} x {{ item.quantidade }} = 
+                                  <strong>R$ {% widthratio item.produto.preco 1 item.quantidade %}</strong>
+                                </li>
                               {% endfor %}
                             </ul>
                           </td>
                           <td>
                             {% if pedido.status == 'solicitado' %}
-                              <span class="badge bg-warning text-dark">Solicitado</span>
+                              <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Solicitado</span>
                             {% elif pedido.status == 'a_caminho' %}
-                              <span class="badge bg-info text-dark">A Caminho</span>
+                              <span class="badge bg-info text-dark"><i class="fas fa-truck"></i> A Caminho</span>
                             {% elif pedido.status == 'entregue' %}
-                              <span class="badge bg-success">Entregue</span>
+                              <span class="badge bg-success"><i class="fas fa-check"></i> Entregue</span>
                             {% else %}
                               <span class="badge bg-secondary">{{ pedido.get_status_display }}</span>
                             {% endif %}
                           </td>
-                          <td>{{ pedido.data_pedido|date:'d/m/Y H:i' }}</td>
+                          <td><small>{{ pedido.data_pedido|date:'d/m/Y' }}<br>{{ pedido.data_pedido|time:'H:i' }}</small></td>
                         </tr>
+                        {% endwith %}
                       {% endfor %}
                     </tbody>
                   </table>
                 {% else %}
                   <div class="empty-state">
-                    <i class="fas fa-shopping-cart"></i>
-                    <h5>Nenhum pedido recebido ainda.</h5>
+                    <i class="fas fa-shopping-cart" style="font-size:48px; color:#ccc;"></i>
+                    <h5 style="margin-top:15px;">Nenhum pedido recebido ainda.</h5>
+                    <p class="text-muted">Os pedidos dos seus produtos aparecerão aqui.</p>
                   </div>
                 {% endif %}
               </div>
@@ -371,6 +410,7 @@
             <!-- Certificações -->
             <div class="section">
               <h3>🏅 Certificações</h3>
+              <p class="text-muted">As certificações devem ser vinculadas a um produto específico</p>
               <form method="POST" enctype="multipart/form-data" style="margin-bottom:20px;">
                 {% csrf_token %}
                 {% if erro_certificacao %}
@@ -379,13 +419,21 @@
                 <input type="hidden" name="nova_certificacao" value="1">
                 <div class="row">
                   <div class="col-md-5 mb-2">
-                    <input type="text" name="nome_certificacao" class="form-control" placeholder="Nome da Certificação" required>
+                    <label class="form-label">Produto *</label>
+                    <select name="produto_certificacao" class="form-select" required>
+                      <option value="">Selecione um produto</option>
+                      {% for produto in produtos %}
+                        <option value="{{ produto.id_produto }}">{{ produto.nome }}</option>
+                      {% endfor %}
+                    </select>
                   </div>
                   <div class="col-md-4 mb-2">
+                    <label class="form-label">Validade (opcional)</label>
                     <input type="date" name="validade_certificacao" class="form-control" placeholder="Validade (opcional)">
                   </div>
                   <div class="col-md-3 mb-2">
-                    <input type="file" name="arquivo_certificado" class="form-control" required>
+                    <label class="form-label">Arquivo *</label>
+                    <input type="file" name="arquivo_certificado" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
                   </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Enviar para Análise</button>
@@ -395,11 +443,18 @@
                   {% for cert in certificacoes %}
                     <div class="card mb-2">
                       <div class="card-body">
-                        <strong>{{ cert.get_status_display }}</strong>
-                        {% if cert.validade %}- Válida até {{ cert.validade|date:'d/m/Y' }}{% endif %}
-                        {% if cert.arquivo_certificado %}<br><a href="{{ cert.arquivo_certificado.url }}" target="_blank">Ver Arquivo</a>{% endif %}
-                        {% if cert.status == 'reprovada' and cert.parecer %}<br><span style="color:#b00;">Parecer: {{ cert.parecer }}</span>{% endif %}
-                        {% if cert.status == 'aprovada' %}<span class="badge bg-success ms-2">Exibida no perfil público</span>{% endif %}
+                        <strong>Produto: {{ cert.produto.nome }}</strong> - 
+                        <span class="badge 
+                          {% if cert.status == 'aprovada' %}bg-success
+                          {% elif cert.status == 'reprovada' %}bg-danger
+                          {% elif cert.status == 'enviado_analise' %}bg-warning text-dark
+                          {% else %}bg-secondary{% endif %}">
+                          {{ cert.get_status_display }}
+                        </span>
+                        {% if cert.validade %}<br>Válida até {{ cert.validade|date:'d/m/Y' }}{% endif %}
+                        {% if cert.arquivo_certificado %}<br><a href="{{ cert.arquivo_certificado.url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">Ver Arquivo</a>{% endif %}
+                        {% if cert.status == 'reprovada' and cert.parecer %}<br><span class="text-danger mt-2">Parecer: {{ cert.parecer }}</span>{% endif %}
+                        {% if cert.status == 'aprovada' %}<br><span class="badge bg-success mt-1">Exibida no perfil público</span>{% endif %}
                       </div>
                     </div>
                   {% endfor %}

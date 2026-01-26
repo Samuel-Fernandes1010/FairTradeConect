@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento Concluído - Amazônia Marketing & Consultoria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #7a9d3d;
+      --secondary: #5a7a2f;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .success-card {
+      background: white;
+      border-radius: 20px;
+      padding: 60px 40px;
+      text-align: center;
+      max-width: 600px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      animation: scaleIn 0.5s ease-out;
+    }
+    
+    .success-icon i {
+      font-size: 50px;
+      color: white;
+    }
+    
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    
+    p {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 40px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      padding: 15px 40px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 50px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(122, 157, 61, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="success-card">
+    <div class="success-icon">
+      <i class="fas fa-check"></i>
+    </div>
+    <h1>Pagamento Concluído!</h1>
+    <p>
+      Seu pagamento foi processado com sucesso. <br>
+      Em breve você receberá um email com os detalhes da sua compra.
+    </p>
+    <a href="{% url 'index' %}" class="btn btn-primary btn-lg">
+      <i class="fas fa-home"></i> Voltar para Página Inicial
+    </a>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div
+    style="max-width: 600px; margin: 50px auto; text-align: center; padding: 40px; background: #d4edda; border-radius: 10px;">
+    <h1 style="color: #155724;">🎉 Pagamento Confirmado!</h1>
+    <p style="font-size: 18px; color: #155724;">Seu pagamento foi confirmado com sucesso.</p>
+    <p>Você receberá um e-mail com os detalhes da sua compra.</p>
+    <a href="{% url 'index' %}"
+        style="display: inline-block; margin-top: 20px; padding: 15px 30px; background: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+        ← Voltar
+    </a>
+</div>
+{% endblock %}

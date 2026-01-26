@@ -1,0 +1,415 @@
+{% extends 'comerciojusto/base.html' %}
+{% load static %}
+
+{% block title %}{{ perfil.user.first_name }} - Fair Trade Connect{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --primary: #7a9d3d;
+        --secondary: #5a7a2f;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f8f9fa;
+    }
+    
+    .perfil-publico-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .perfil-header-banner {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: 12px 12px 0 0;
+        padding: 60px 40px 40px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .perfil-header-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.05)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .perfil-info-card {
+        background: white;
+        border-radius: 0 0 12px 12px;
+        padding: 40px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        position: relative;
+        margin-top: -20px;
+    }
+    
+    .perfil-logo-publico {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 5px solid white;
+        overflow: hidden;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 10;
+    }
+    
+    .perfil-logo-publico img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .perfil-nome-publico {
+        font-size: 32px;
+        font-weight: 700;
+        color: white;
+        margin: 20px 0 10px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .perfil-tipo-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 10;
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .stat-card {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 24px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid var(--primary);
+    }
+    
+    .produto-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .produto-card-mini {
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s;
+        background: white;
+    }
+    
+    .produto-card-mini:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary);
+    }
+    
+    .produto-img-mini {
+        width: 100%;
+        height: 180px;
+        background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+    }
+    
+    .produto-img-mini img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .produto-info-mini {
+        padding: 15px;
+    }
+    
+    .produto-nome-mini {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .produto-preco-mini {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 20px;
+    }
+    
+    .btn-ver-produto {
+        width: 100%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+    
+    .btn-ver-produto:hover {
+        background: var(--secondary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .certificacao-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 5px;
+    }
+    
+    .avaliacao-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .estrelas {
+        color: #ffc107;
+        font-size: 18px;
+    }
+    
+    .btn-voltar {
+        display: inline-block;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: opacity 0.3s;
+    }
+    
+    .btn-voltar:hover {
+        opacity: 0.7;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="perfil-publico-container">
+    <a href="{% url 'index' %}" class="btn-voltar">
+        <i class="fas fa-arrow-left"></i> Voltar para produtos
+    </a>
+    
+    <!-- Header do Perfil -->
+    <div class="perfil-header-banner">
+        <div class="perfil-logo-publico">
+            {% if perfil.logo %}
+                <img src="{{ perfil.logo.url }}" alt="Logo">
+            {% else %}
+                {% if perfil.tipo == 'produtor' %}👨‍🌾{% else %}🏢{% endif %}
+            {% endif %}
+        </div>
+        <div class="perfil-nome-publico">{{ perfil.user.first_name|default:perfil.user.username }}</div>
+        <span class="perfil-tipo-badge">
+            {% if perfil.tipo == 'produtor' %}
+                <i class="fas fa-leaf"></i> Produtor
+            {% else %}
+                <i class="fas fa-building"></i> Empresa
+            {% endif %}
+        </span>
+    </div>
+    
+    <!-- Informações do Perfil -->
+    <div class="perfil-info-card">
+        {% if perfil.bio %}
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: var(--primary); font-weight: 600; margin-bottom: 10px;">
+                    <i class="fas fa-user-circle"></i> Sobre
+                </h4>
+                <p style="color: #555; line-height: 1.8;">{{ perfil.bio }}</p>
+            </div>
+        {% endif %}
+        
+        {% if perfil.descricao %}
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: var(--primary); font-weight: 600; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> Descrição
+                </h4>
+                <p style="color: #555; line-height: 1.8;">{{ perfil.descricao }}</p>
+            </div>
+        {% endif %}
+        
+        <!-- Estatísticas -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-number">{{ produtos.count }}</div>
+                <div class="stat-label">Produtos Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ certificacoes_aprovadas.count }}</div>
+                <div class="stat-label">Certificações</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ perfil.taxa_avaliacao }}</div>
+                <div class="stat-label">Avaliação Média</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ perfil.total_vendas }}</div>
+                <div class="stat-label">Vendas Realizadas</div>
+            </div>
+        </div>
+        
+        <!-- Informações de Contato -->
+        <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+            <h4 style="color: var(--primary); font-weight: 600; margin-bottom: 15px;">
+                <i class="fas fa-address-book"></i> Contato
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                {% if perfil.user.email %}
+                <div style="color: #666;">
+                    <i class="fas fa-envelope" style="color: var(--primary); margin-right: 8px;"></i>
+                    {{ perfil.user.email }}
+                </div>
+                {% endif %}
+                {% if perfil.contato_adicional %}
+                <div style="color: #666;">
+                    <i class="fas fa-phone" style="color: var(--primary); margin-right: 8px;"></i>
+                    {{ perfil.contato_adicional }}
+                </div>
+                {% endif %}
+                {% if perfil.cidade and perfil.estado %}
+                <div style="color: #666;">
+                    <i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 8px;"></i>
+                    {{ perfil.cidade }}, {{ perfil.estado }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Certificações -->
+    {% if certificacoes_aprovadas %}
+    <div class="section-card">
+        <h3 class="section-title"><i class="fas fa-certificate"></i> Certificações Aprovadas</h3>
+        <div>
+            {% for cert in certificacoes_aprovadas %}
+                <span class="certificacao-badge">
+                    <i class="fas fa-check-circle"></i> {{ cert.produto.nome }}
+                    {% if cert.validade %} - Válido até {{ cert.validade|date:'d/m/Y' }}{% endif %}
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Produtos -->
+    <div class="section-card">
+        <h3 class="section-title"><i class="fas fa-box"></i> Produtos</h3>
+        
+        {% if produtos %}
+            <div class="produto-grid">
+                {% for produto in produtos %}
+                    <div class="produto-card-mini">
+                        <div class="produto-img-mini">
+                            {% if produto.imagem %}
+                                <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}">
+                            {% else %}
+                                📦
+                            {% endif %}
+                        </div>
+                        <div class="produto-info-mini">
+                            <div class="produto-nome-mini">{{ produto.nome }}</div>
+                            <div class="produto-preco-mini">R$ {{ produto.preco }}</div>
+                            <a href="{% url 'detalhes_produto' produto.id_produto %}" class="btn-ver-produto">
+                                <i class="fas fa-eye"></i> Ver Detalhes
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #999;">
+                <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 15px;"></i>
+                <p>Nenhum produto disponível no momento.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Avaliações -->
+    {% if avaliacoes %}
+    <div class="section-card">
+        <h3 class="section-title"><i class="fas fa-star"></i> Avaliações</h3>
+        
+        {% for avaliacao in avaliacoes %}
+            <div class="avaliacao-card">
+                <div class="estrelas">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= avaliacao.estrelas %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </div>
+                <p style="color: #555; margin: 10px 0;">{{ avaliacao.comentario }}</p>
+                <small style="color: #999;">
+                    Por {{ avaliacao.usuario.username }} em {{ avaliacao.data_avaliacao|date:'d/m/Y' }}
+                </small>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

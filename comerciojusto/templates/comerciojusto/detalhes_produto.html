@@ -5,7 +5,8 @@
     <script src="/static/js/custom.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ produto.nome }} - Fair Trade Connect</title>
+  <title>{{ produto.nome }} - Amazônia Marketing & Consultoria</title>
+  {% load static %}
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -16,6 +17,11 @@
     
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
       background: #f8f9fa;
     }
     
@@ -259,7 +265,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="{% url 'index' %}">
-        🌾 Fair Trade Connect
+        🌿 Amazônia Marketing & Consultoria
       </a>
       <a href="{% url 'visualizar_carrinho' %}" style="color: white; font-size: 24px; margin-right: 20px;">
         <i class="fas fa-shopping-cart"></i>
@@ -286,7 +292,14 @@
       <!-- Informações do Produto -->
       <div class="col-lg-6">
         <div class="product-details">
-          <h1 class="product-title">{{ produto.nome }}</h1>
+          <h1 class="product-title">
+            {{ produto.nome }}
+            {% if produto_certificado %}
+              <span style="display:inline-block; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-left: 10px; vertical-align: middle;">
+                <i class="fas fa-certificate"></i> Certificado
+              </span>
+            {% endif %}
+          </h1>
           
           <span class="product-category">
             {{ produto.get_categoria_display }}
@@ -343,16 +356,13 @@
               </div>
             </div>
 
-            {% if user.is_authenticated %}
-              <button type="submit" class="btn-add-cart">
-                <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
-              </button>
-            {% else %}
-              <button type="button" class="btn-add-cart" onclick="alert('Faça login para comprar!');">
-                <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
-              </button>
-              <p style="margin-top: 15px; color: #ff6b6b;">
-                <strong>Nota:</strong> Você pode adicionar itens ao carrinho sem fazer login, mas precisará se cadastrar/fazer login para finalizar a compra.
+            <button type="submit" class="btn-add-cart">
+              <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
+            </button>
+            
+            {% if not user.is_authenticated %}
+              <p style="margin-top: 15px; color: #ff9800; font-size: 14px;">
+                <i class="fas fa-info-circle"></i> <strong>Dica:</strong> Você pode adicionar itens ao carrinho sem login, mas precisará se cadastrar para finalizar a compra.
               </p>
             {% endif %}
           </form>
@@ -422,54 +432,110 @@
     <div class="producer-info">
       <div class="producer-header">
         <div class="producer-logo">
-          {% if produtor_info.perfil.logo %}
-            <img src="{{ produtor_info.perfil.logo.url }}" alt="Logo">
+          {% if perfil_produto.logo %}
+            <img src="{{ perfil_produto.logo.url }}" alt="Logo">
           {% else %}
             👨‍🌾
           {% endif %}
         </div>
         <div>
-          <div class="producer-name">{{ produtor_info.nome }}</div>
-          <div class="producer-type">🌱 {{ produtor_info.perfil.get_tipo_display }}</div>
+          <a href="{% url 'perfil_publico' perfil_produto.id %}" style="text-decoration: none; color: inherit;">
+            <div class="producer-name" style="cursor: pointer; transition: color 0.3s;">
+              {% if produtor_info %}
+                {{ produtor_info.nome }}
+              {% else %}
+                {{ perfil_produto.user.first_name }} {{ perfil_produto.user.last_name }}
+              {% endif %}
+              <i class="fas fa-external-link-alt" style="font-size: 16px; margin-left: 5px; color: var(--primary);"></i>
+            </div>
+          </a>
+          <div class="producer-type">🌱 {{ perfil_produto.get_tipo_display }}</div>
         </div>
       </div>
 
-      {% if produtor_info.perfil.descricao %}
+      {% if perfil_produto.descricao %}
         <div class="producer-description">
-          <strong>Sobre o Produtor:</strong><br>
-          {{ produtor_info.perfil.descricao }}
+          <strong>Sobre o Vendedor:</strong><br>
+          {{ perfil_produto.descricao }}
         </div>
       {% endif %}
 
-      {% if produtor_info.perfil.noticia %}
+      {% if perfil_produto.bio %}
+        <div class="producer-description">
+          <strong>Biografia:</strong><br>
+          {{ perfil_produto.bio }}
+        </div>
+      {% endif %}
+
+      {% if perfil_produto.noticia %}
         <div class="producer-description">
           <strong>Novidades:</strong><br>
-          {{ produtor_info.perfil.noticia }}
+          {{ perfil_produto.noticia }}
+        </div>
+      {% endif %}
+
+      <!-- Botão de Enviar Mensagem -->
+      {% if user.is_authenticated and user != perfil_produto.user %}
+        <div style="margin-top: 20px;">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mensagemModal" style="background: var(--primary); border: none;">
+            <i class="fas fa-envelope"></i> Enviar Mensagem ao Vendedor
+          </button>
         </div>
       {% endif %}
 
       <div class="contact-info">
         <div class="contact-item">
           <i class="fas fa-envelope"></i>
-          <span>{{ produtor_info.email }}</span>
+          <span>{{ perfil_produto.user.email }}</span>
         </div>
-        <div class="contact-item">
-          <i class="fas fa-phone"></i>
-          <span>{{ produtor_info.telefone }}</span>
-        </div>
-        {% if produtor_info.perfil.contato_adicional %}
+        {% if perfil_produto.contato_adicional %}
           <div class="contact-item">
-            <i class="fas fa-info-circle"></i>
-            <span>{{ produtor_info.perfil.contato_adicional }}</span>
+            <i class="fas fa-phone"></i>
+            <span>{{ perfil_produto.contato_adicional }}</span>
           </div>
         {% endif %}
       </div>
+    </div>
+  </div>
 
-      {% if user.is_authenticated %}
-        <button class="btn btn-primary" style="margin-top: 20px; width: 100%;">
-          <i class="fas fa-envelope"></i> Enviar Mensagem ao Produtor
-        </button>
-      {% endif %}
+  <!-- Modal de Enviar Mensagem -->
+  <div class="modal fade" id="mensagemModal" tabindex="-1" aria-labelledby="mensagemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="background: var(--primary); color: white;">
+          <h5 class="modal-title" id="mensagemModalLabel">
+            <i class="fas fa-envelope"></i> Enviar Mensagem para 
+            {% if produtor_info %}{{ produtor_info.nome }}{% else %}{{ perfil_produto.user.first_name }}{% endif %}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="POST" action="{% url 'enviar_mensagem' perfil_produto.user.id %}">
+          {% csrf_token %}
+          <div class="modal-body">
+            <input type="hidden" name="produto_id" value="{{ produto.id_produto }}">
+            
+            <div class="mb-3">
+              <label for="assunto" class="form-label">Assunto *</label>
+              <input type="text" class="form-control" id="assunto" name="assunto" required placeholder="Ex: Interesse no produto {{ produto.nome }}">
+            </div>
+            
+            <div class="mb-3">
+              <label for="corpo" class="form-label">Mensagem *</label>
+              <textarea class="form-control" id="corpo" name="corpo" rows="5" required placeholder="Escreva sua mensagem aqui..."></textarea>
+            </div>
+            
+            <div class="alert alert-info" role="alert">
+              <i class="fas fa-info-circle"></i> <strong>Dica:</strong> Seja claro sobre seu interesse e inclua informações relevantes como quantidade desejada ou dúvidas sobre o produto.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" style="background: var(--primary); border: none;">
+              <i class="fas fa-paper-plane"></i> Enviar Mensagem
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
